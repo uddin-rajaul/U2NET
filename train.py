@@ -17,9 +17,9 @@ def create_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
-def load_dataset(path, split=0.1):
-    train_x = sorted(glob(os.path.join(path, "train", "blurred_image", "*.jpg")))
-    train_y = sorted(glob(os.path.join(path, "train", "mask", "*.png")))
+def load_dataset(path, split=0.2):
+    train_x = sorted(glob(os.path.join(path, "images", "*.jpg")))
+    train_y = sorted(glob(os.path.join(path, "masks", "*.png")))
 
     # Split training data into train and validation sets
     train_x, valid_x, train_y, valid_y = train_test_split(
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     LEARNING_RATE = 1e-4
     EPOCHS = 10
 
-    model_path = os.path.join("files", "model.h5")
+    model_path = os.path.join("files", "model.keras")
     csv_path = os.path.join("files", "log.csv")
 
     # dataset root path
@@ -110,7 +110,7 @@ if __name__ == "__main__":
             model = tf.keras.models.load_model(model_path)
             print("Loaded pre-trained model from disk.")
         else:
-            model = build_u2net((HEIGHT, WIDTH), 3)
+            model = build_u2net((HEIGHT, WIDTH, 3))
             print("Created new model.")
 
         model.compile(loss="binary_crossentropy", optimizer=Adam(LEARNING_RATE))
