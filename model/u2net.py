@@ -175,8 +175,3 @@ def build_u2net_lite(input_shape, num_classes=1):
 if __name__ == "__main__":
     model = build_u2net((512, 512, 3))
     model.summary()
-
-
-
-
-## ..
