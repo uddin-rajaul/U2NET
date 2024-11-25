@@ -21,7 +21,6 @@ def load_dataset(path, split=0.2):
     train_x = sorted(glob(os.path.join(path, "images", "*.jpg")))
     train_y = sorted(glob(os.path.join(path, "masks", "*.png")))
 
-    # Split training data into train and validation sets
     train_x, valid_x, train_y, valid_y = train_test_split(
         train_x, train_y, test_size=split, random_state=42
     )
@@ -29,19 +28,18 @@ def load_dataset(path, split=0.2):
     return (train_x, train_y), (valid_x, valid_y)
 
 def read_image(path):
-    # Read image file using TensorFlow
     image = tf.io.read_file(path)
-    image = tf.image.decode_jpeg(image, channels=3)  # Decode as RGB
+    image = tf.image.decode_jpeg(image, channels=3)
     image = tf.image.resize(image, [HEIGHT, WIDTH])
-    image = image / 255.0  # Normalize to [0, 1]
+    image = image / 255.0
     return image
 
 def read_mask(path):
-    # Read mask file using TensorFlow
+
     mask = tf.io.read_file(path)
-    mask = tf.image.decode_png(mask, channels=1)  # Decode as grayscale
+    mask = tf.image.decode_png(mask, channels=1)
     mask = tf.image.resize(mask, [HEIGHT, WIDTH])
-    mask = mask / 255.0  # Normalize to [0, 1]
+    mask = mask / 255.0
     return mask
 
 def tf_parse(x, y):
@@ -68,7 +66,6 @@ def plot_loss(csv_log_path):
     """Plot training and validation loss from the CSV log file"""
     data = pd.read_csv(csv_log_path)
 
-    # Plotting the loss and val_loss
     plt.figure(figsize=(10, 6))
     plt.plot(data['epoch'], data['loss'], label='Training Loss')
     plt.plot(data['epoch'], data['val_loss'], label='Validation Loss', linestyle='--')
@@ -93,10 +90,8 @@ if __name__ == "__main__":
     model_path = os.path.join("files", "model.keras")
     csv_path = os.path.join("files", "log.csv")
 
-    # dataset root path
-    dataset_path = "./"  # Set the working directory as the dataset path
+    dataset_path = "./"
 
-    # Load dataset
     (train_x, train_y), (valid_x, valid_y) = load_dataset(dataset_path)
     print(f"Train:    {len(train_x)} - {len(train_y)}")
     print(f"Validate: {len(valid_x)} - {len(valid_y)}")
@@ -106,7 +101,7 @@ if __name__ == "__main__":
 
     """Model"""
     with tf.device(get_device()):
-        # Check if model exists and load it, otherwise create a new one
+
         if os.path.exists(model_path):
             model = tf.keras.models.load_model(model_path)
             print("Loaded pre-trained model from disk.")
@@ -116,7 +111,6 @@ if __name__ == "__main__":
 
         model.compile(loss="binary_crossentropy", optimizer=Adam(LEARNING_RATE))
 
-        # Callbacks
         callbacks = [
             ModelCheckpoint(model_path, verbose=1, save_best_only=True),
             ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, min_lr=1e-7, verbose=1),
@@ -125,7 +119,7 @@ if __name__ == "__main__":
             TensorBoard(log_dir='./logs')
         ]
 
-        # If log file exists, continue training; otherwise, start fresh
+
         if os.path.exists(csv_path):
             print(f"Found existing log file: {csv_path}")
         else:
@@ -138,5 +132,5 @@ if __name__ == "__main__":
             callbacks=callbacks
         )
 
-    # Plot the loss
+
     plot_loss(csv_path)
