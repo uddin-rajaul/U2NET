@@ -1,7 +1,7 @@
 # U2Net Image Segmentation with TensorFlow
 
 This project demonstrates how to use the **U2Net architecture** for semantic image segmentation using TensorFlow.
-![Architecture](./architecture.jpg "This is a image for U2NET architecture")
+![Architecture](./architecture.png "This is a image for U2NET architecture")
 
 ## Key Features
 
