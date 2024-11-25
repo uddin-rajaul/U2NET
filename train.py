@@ -1,7 +1,7 @@
 import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 import tensorflow as tf
 import numpy as np
-import cv2
 from glob import glob
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, ReduceLROnPlateau, EarlyStopping, TensorBoard
@@ -29,19 +29,20 @@ def load_dataset(path, split=0.2):
     return (train_x, train_y), (valid_x, valid_y)
 
 def read_image(path):
-    x = cv2.imread(path, cv2.IMREAD_COLOR)
-    x = cv2.resize(x, (HEIGHT, WIDTH))
-    x = x / 255.0
-    x = x.astype(np.float32)
-    return x
+    # Read image file using TensorFlow
+    image = tf.io.read_file(path)
+    image = tf.image.decode_jpeg(image, channels=3)  # Decode as RGB
+    image = tf.image.resize(image, [HEIGHT, WIDTH])
+    image = image / 255.0  # Normalize to [0, 1]
+    return image
 
 def read_mask(path):
-    x = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    x = cv2.resize(x, (HEIGHT, WIDTH))
-    x = x / 255.0
-    x = x.astype(np.float32)
-    x = np.expand_dims(x, axis=-1)
-    return x
+    # Read mask file using TensorFlow
+    mask = tf.io.read_file(path)
+    mask = tf.image.decode_png(mask, channels=1)  # Decode as grayscale
+    mask = tf.image.resize(mask, [HEIGHT, WIDTH])
+    mask = mask / 255.0  # Normalize to [0, 1]
+    return mask
 
 def tf_parse(x, y):
     def _parse(x, y):
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     csv_path = os.path.join("files", "log.csv")
 
     # dataset root path
-    dataset_path = os.getcwd()  # Set the working directory as the dataset path
+    dataset_path = "./"  # Set the working directory as the dataset path
 
     # Load dataset
     (train_x, train_y), (valid_x, valid_y) = load_dataset(dataset_path)
